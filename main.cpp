@@ -42,12 +42,13 @@ int main(int argc, char *argv[]) {
 
     file.seekg(0, std::ios::beg);
     
-    GB_core_t *gbCore = (GB_core_t*)malloc(sizeof(GB_core_t));
-    GB_init(gbCore);
-    GB_core_t *gbCore2 = (GB_core_t*)malloc(sizeof(GB_core_t));
-    GB_init(gbCore2);
-    file.read((char*)gbCore->rom, size);
-    memcpy(gbCore2->rom, gbCore->rom, size);
+    GB_core_t *gbCore, *gbCore2;
+    GB_init(&gbCore);
+    GB_init(&gbCore2);
+
+    file.read(GB_get_rom(GbCore), size);
+    memcpy(GB_get_rom(GbCore2), GB_get_rom(GbCore), size);
+
     if (file.fail()) {
         printf("Couldn't read ROM file\n");
         exit(1);
@@ -79,29 +80,29 @@ int main(int argc, char *argv[]) {
                             break;
 
                         case SDLK_z:
-                            gbCore->button_b = pressed;
+                            GB_set_button(gbCore, BUTTON_B, pressed);
                             break;
                         case SDLK_x:
-                            gbCore->button_a = pressed;
+                            GB_set_button(gbCore, BUTTON_A, pressed);
                             break;
                         case SDLK_BACKSPACE:
-                            gbCore->button_select = pressed;
+                            GB_set_button(gbCore, BUTTON_SELECT, pressed);
                             break;
                         case SDLK_RETURN:
-                            gbCore->button_start = pressed;
+                            GB_set_button(gbCore, BUTTON_START, pressed);
                             break;
 
                         case SDLK_DOWN:
-                            gbCore->button_down = pressed;
+                            GB_set_button(gbCore, BUTTON_DOWN, pressed);
                             break;
                         case SDLK_UP:
-                            gbCore->button_up = pressed;
+                            GB_set_button(gbCore, BUTTON_UP, pressed);
                             break;
                         case SDLK_LEFT:
-                            gbCore->button_left = pressed;
+                            GB_set_button(gbCore, BUTTON_LEFT, pressed);
                             break;
                         case SDLK_RIGHT:
-                            gbCore->button_right = pressed;
+                            GB_set_button(gbCore, BUTTON_RIGHT, pressed);
                             break;
                     }
                     break;
@@ -185,6 +186,9 @@ int main(int argc, char *argv[]) {
             cyclesRan += GB_run_to_next_frame(gbCore2);
         }
     }
+
+    GB_destroy(GbCore);
+    GB_destroy(GbCore2);
 
     SDL_DestroyWindow(window);
     SDL_Quit();
